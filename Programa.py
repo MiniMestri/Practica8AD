@@ -6,14 +6,13 @@ import sqlite3
 
 circulo = []
 rectangulo=[]
-numobjetos = 5
+numobjetos = 1
 class Estructura:
     def __init__(self):
-        pass
-    def serializar(self):
         self.centrox = random.randint(0,512) 
         self.centroy = random.randint(0,512)
         self.color = "green"
+    def serializar(self):
         objeto_serializado={
             "centrox": self.centrox,
             "centroy": self.centroy,
@@ -89,25 +88,39 @@ def guardarJSON():
         archivo.write(cadena)
 
 def guardarSQL():
-    conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
-    cursor = conexion.cursor()
-    for objeto in circulo + rectangulo:
-        sql_query = '''
-            INSERT INTO objetos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
-        cursor.execute(sql_query, (
-            str(objeto.entidad),
-            str(objeto.forma),
-            objeto.centrox,
-            objeto.centroy,
-            objeto.radio,
-            objeto.direccion,
-            str(objeto.color1),
-            str(objeto.color2),
-            str(objeto.caracteristicas)
-        ))
+    try:
+        conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
+        cursor = conexion.cursor()
 
-    conexion.commit()
-    conexion.close()
+        for objeto in circulo + rectangulo:
+            sql_query = '''INSERT INTO objetos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+            cursor.execute(sql_query, (
+                str(objeto.entidad),
+                str(objeto.forma),
+                objeto.centrox,
+                objeto.centroy,
+                objeto.radio,
+                objeto.direccion,
+                str(objeto.color1),
+                str(objeto.color2),
+                str(objeto.caracteristicas)
+            ))
+
+            for elemento in objeto.caracteristicas:
+                sql_query2 = '''INSERT INTO caracteristicas VALUES (NULL, ?, ?, ?, ?)'''
+                cursor.execute(sql_query2, (
+                    str(objeto.entidad),
+                    str(elemento.centrox),
+                    str(elemento.centroy),
+                    str(elemento.color)
+                ))
+
+        conexion.commit()
+        conexion.close()
+
+    finally:
+        if conexion:
+            conexion.close()
 
 def leerSQL():
     #Cargar satelites desde sql
