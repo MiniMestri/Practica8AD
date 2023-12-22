@@ -7,6 +7,8 @@ import sqlite3
 circulo = []
 rectangulo=[]
 numobjetos = 0
+
+#Clase estructura que genera otra tabla con propiedades de los objetos
 class Estructura:
     def __init__(self):
         self.centrox = random.randint(0,512) 
@@ -20,6 +22,7 @@ class Estructura:
             }
         return objeto_serializado
 
+#Clase objetos para crear elementos
 class Objetos:
     def __init__(self,forma):
         self.centrox = random.randint(0,512) 
@@ -29,10 +32,11 @@ class Objetos:
         self.color1 = "green"
         self.color2="red"
         self.entidad = ""
-        self.caracteristicas=[Estructura() for _ in range(4)]
+        self.caracteristicas=[Estructura() for _ in range(2)]
         self.forma=forma
         self.caracteristicas.append(Estructura())
-
+        
+    #Visualización de circulo
     def circulo(self):
         self.entidad = lienzo.create_oval(
             self.centrox - self.radio/2,
@@ -41,6 +45,7 @@ class Objetos:
             self.centroy + self.radio/2,
             fill=self.color1
         )
+    #Visualización de rectangulo
     def rectangulo(self):
         self.entidad = lienzo.create_rectangle(
             self.centrox - self.radio/2,
@@ -49,6 +54,8 @@ class Objetos:
             self.centroy + self.radio/2,
             fill=self.color2
         )
+        
+    #Mover el rectangulo y circulo por el lienzo
     def mover(self):
         self.colisiona()
         lienzo.move(
@@ -58,10 +65,12 @@ class Objetos:
         )
         self.centrox+= math.cos(self.direccion)
         self.centroy+= math.sin(self.direccion)
-
+        
+    #Colision con los limites de la ventana
     def colisiona(self):
         if self.centrox < 0 or self.centrox > 512 or self.centroy < 0 or self.centroy > 512:
             self.direccion += 180
+    #Serializar los datos para volcarlos en json
     def serializar(self):
         objeto_serializado={
             "entidad":self.entidad,
@@ -74,6 +83,8 @@ class Objetos:
             "caracteristicas":[item.serializar() for item in self.caracteristicas]
             }
         return objeto_serializado
+    
+    #Método limpiar lienzo
     def limpiar(self):
         lienzo.delete(self.entidad)
         if self.forma == "circulo" and self in circulo:
@@ -124,7 +135,7 @@ def guardarSQL():
         if conexion:
             conexion.close()
 
-#Cargar objetos en SQL
+#Cargar objetos desde SQLite3
 def leerSQL():
     
 
@@ -172,18 +183,20 @@ def leerSQL():
                 
         conexion.close()
 
-        
+#Limpiar el lienzo    
 def limpiar_lienzo():
     for objeto in circulo + rectangulo:
         objeto.limpiar()
 
+#Añadir rectangulo al lienzo
 def anadirRectangulo():
     global numobjetos
     numobjetos+=1
     nuevo_rectangulo=Objetos("rectangulo")
     nuevo_rectangulo.rectangulo()
     rectangulo.append(nuevo_rectangulo)
-    
+
+#Añadir un circulo al lienzo
 def anadirCirculo():
     global numobjetos
     numobjetos+=1
@@ -200,16 +213,14 @@ lienzo.pack()
 frame_botones=tk.Frame(raiz)
 frame_botones.pack()
 
+#Botones
 boton_guardar=tk.Button(frame_botones,text="GUARDAR",command=guardarSQL).grid(row=0,column=0,padx=10,pady=10)
 boton_limpiar=tk.Button(frame_botones,text="LIMPIAR",command=limpiar_lienzo).grid(row=0,column=1,padx=10,pady=10)
 boton_cargar=tk.Button(frame_botones,text="CARGAR",command=leerSQL).grid(row=0,column=2,padx=10,pady=10)
 boton_anadirR=tk.Button(frame_botones,text="+1 RECTANGULO",command=anadirRectangulo).grid(row=0,column=3,padx=10,pady=10)
 boton_anadirC=tk.Button(frame_botones,text="+1 CIRCULO",command=anadirCirculo).grid(row=0,column=4,padx=10,pady=10)
 
-for i in range(0, numobjetos):
-    circulo.append(Objetos("circulo"))
-    rectangulo.append(Objetos("rectangulo"))
-
+#Funcionamiento
 for elemento in circulo:
     elemento.circulo()
 for elemento in rectangulo:
