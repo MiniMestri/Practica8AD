@@ -15,6 +15,7 @@ class Objetos:
         self.color = "green"
         self.color2="red"
         self.entidad = ""
+        self.caracteristicas=""
 
     def visualizar(self):
         self.entidad = lienzo.create_oval(
@@ -45,6 +46,15 @@ class Objetos:
     def colisiona(self):
         if self.centrox < 0 or self.centrox > 512 or self.centroy < 0 or self.centroy > 512:
             self.direccion += 180
+    def serializar(self):
+        objeto_serializado={
+            "centrox": self.centrox,
+            "centroy": self.centroy,
+            "radio": self.radio,
+            "direccion": self.direccion,
+            "color": self.color,
+            "caracteristicas":self.caracteristicas
+            }
 
 raiz = tk.Tk()
 
