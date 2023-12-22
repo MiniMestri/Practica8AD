@@ -6,7 +6,7 @@ import sqlite3
 
 circulo = []
 rectangulo=[]
-numobjetos = 1
+numobjetos = 0
 class Estructura:
     def __init__(self):
         self.centrox = random.randint(0,512) 
@@ -29,7 +29,7 @@ class Objetos:
         self.color1 = "green"
         self.color2="red"
         self.entidad = ""
-        self.caracteristicas=[]
+        self.caracteristicas=[Estructura() for _ in range(4)]
         self.forma=forma
         self.caracteristicas.append(Estructura())
 
@@ -80,13 +80,15 @@ class Objetos:
             circulo.remove(self)
         elif self.forma == "rectangulo" and self in rectangulo:
             rectangulo.remove(self)
-    
+
+#guardar en JSON
 def guardarJSON():
     objeto_serializado =[circulo.serializar() for circulo in circulo + rectangulo]
     cadena=json.dumps(objeto_serializado)
     with open("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.json",'w') as archivo:
         archivo.write(cadena)
 
+#Guardar objeto en SQL
 def guardarSQL():
     try:
         conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
@@ -122,8 +124,9 @@ def guardarSQL():
         if conexion:
             conexion.close()
 
+#Cargar objetos en SQL
 def leerSQL():
-    #Cargar satelites desde sql
+    
 
         conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
         cursor = conexion.cursor()
@@ -173,15 +176,35 @@ def leerSQL():
 def limpiar_lienzo():
     for objeto in circulo + rectangulo:
         objeto.limpiar()
+
+def anadirRectangulo():
+    global numobjetos
+    numobjetos+=1
+    nuevo_rectangulo=Objetos("rectangulo")
+    nuevo_rectangulo.rectangulo()
+    rectangulo.append(nuevo_rectangulo)
+    
+def anadirCirculo():
+    global numobjetos
+    numobjetos+=1
+    nuevo_circulo=Objetos("circulo")
+    nuevo_circulo.circulo()
+    circulo.append(nuevo_circulo)
+    
         
 raiz = tk.Tk()
 #Elementos
 lienzo = tk.Canvas(raiz, width=512, height=512)
 lienzo.pack()
 
-boton_guardar=tk.Button(raiz,text="GUARDAR",command=guardarSQL).pack()
-boton_limpiar=tk.Button(raiz,text="LIMPIAR",command=limpiar_lienzo).pack()
-boton_cargar=tk.Button(raiz,text="CARGAR",command=leerSQL).pack()
+frame_botones=tk.Frame(raiz)
+frame_botones.pack()
+
+boton_guardar=tk.Button(frame_botones,text="GUARDAR",command=guardarSQL).grid(row=0,column=0,padx=10,pady=10)
+boton_limpiar=tk.Button(frame_botones,text="LIMPIAR",command=limpiar_lienzo).grid(row=0,column=1,padx=10,pady=10)
+boton_cargar=tk.Button(frame_botones,text="CARGAR",command=leerSQL).grid(row=0,column=2,padx=10,pady=10)
+boton_anadirR=tk.Button(frame_botones,text="+1 RECTANGULO",command=anadirRectangulo).grid(row=0,column=3,padx=10,pady=10)
+boton_anadirC=tk.Button(frame_botones,text="+1 CIRCULO",command=anadirCirculo).grid(row=0,column=4,padx=10,pady=10)
 
 for i in range(0, numobjetos):
     circulo.append(Objetos("circulo"))
