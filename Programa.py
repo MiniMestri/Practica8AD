@@ -27,20 +27,20 @@ class Objetos:
         self.centroy = random.randint(0,512) 
         self.radio = 30
         self.direccion = random.randint(0, 360)
-        self.color = "green"
+        self.color1 = "green"
         self.color2="red"
         self.entidad = ""
         self.caracteristicas=[]
         self.forma=forma
         self.caracteristicas.append(Estructura())
 
-    def visualizar(self):
+    def circulo(self):
         self.entidad = lienzo.create_oval(
             self.centrox - self.radio/2,
             self.centroy - self.radio/2,
             self.centrox + self.radio/2,
             self.centroy + self.radio/2,
-            fill=self.color
+            fill=self.color1
         )
     def rectangulo(self):
         self.entidad = lienzo.create_rectangle(
@@ -75,7 +75,13 @@ class Objetos:
             "caracteristicas":[item.serializar() for item in self.caracteristicas]
             }
         return objeto_serializado
-
+    def limpiar(self):
+        lienzo.delete(self.entidad)
+        if self.forma == "circulo" and self in circulo:
+            circulo.remove(self)
+        elif self.forma == "rectangulo" and self in rectangulo:
+            rectangulo.remove(self)
+    
 def guardarJSON():
     objeto_serializado =[circulo.serializar() for circulo in circulo + rectangulo]
     cadena=json.dumps(objeto_serializado)
@@ -87,9 +93,7 @@ def guardarSQL():
     cursor = conexion.cursor()
     for objeto in circulo + rectangulo:
         sql_query = '''
-            INSERT INTO objetos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        '''
-        print(sql_query)  # Imprime la sentencia SQL
+            INSERT INTO objetos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         cursor.execute(sql_query, (
             str(objeto.entidad),
             str(objeto.forma),
@@ -97,7 +101,7 @@ def guardarSQL():
             objeto.centroy,
             objeto.radio,
             objeto.direccion,
-            str(objeto.color),
+            str(objeto.color1),
             str(objeto.color2),
             str(objeto.caracteristicas)
         ))
@@ -108,44 +112,53 @@ def guardarSQL():
 def leerSQL():
     #Cargar satelites desde sql
     try:
-        conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica7AD\\nasa.sqlite3")
+        conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
         cursor = conexion.cursor()
 
-        cursor.execute('''SELECT * FROM satelites''')
+        cursor.execute('''SELECT * FROM objetos''')
 
         while True:
             fila = cursor.fetchone()
             if fila is None:
                 break
-            satelite= Objetos()
-            satelite.centrox=fila[1]
-            satelite.centroy=fila[2]
-            satelite.radioS=fila[3]
-            satelite.direccion=fila[4]
-            satelite.color3=fila[5]
-            satelite.entidad=fila[6]
-            satelite.velocidad=fila[7]
-            satelite.a=fila[8]
-            satelite.b=fila[9]
-            objetos.append(Objetos())
+            objeto= Objetos()
+            objeto.entidad=fila[1]
+            objeto.forma=fila[2]
+            objeto.centrox=fila[3]
+            objeto.centroy=fila[4]
+            objeto.radio=fila[5]
+            objeto.direccion=fila[6]
+            objeto.caracteristicas=fila[9]
+            if objeto.forma =="circulo":
+                objeto.color=fila[7]
+                circulo.append(Objetos())
+            elif objeto.forma =="rectangulo":
+                objeto.color=fila[8]
+                rectangulo.append(Objetos())
 
         conexion.close()
     except:
         print("ERROR")
-
+        
+def limpiar_lienzo():
+    for objeto in circulo + rectangulo:
+        objeto.limpiar()
+        
 raiz = tk.Tk()
 #Elementos
 lienzo = tk.Canvas(raiz, width=512, height=512)
 lienzo.pack()
 
 boton_guardar=tk.Button(raiz,text="GUARDAR",command=guardarSQL).pack()
+boton_limpiar=tk.Button(raiz,text="LIMPIAR",command=limpiar_lienzo).pack()
+boton_cargar=tk.Button(raiz,text="CARGAR",command=leerSQL).pack()
 
 for i in range(0, numobjetos):
     circulo.append(Objetos("circulo"))
     rectangulo.append(Objetos("rectangulo"))
 
 for elemento in circulo:
-    elemento.visualizar()
+    elemento.circulo()
 for elemento in rectangulo:
     elemento.rectangulo()
 
