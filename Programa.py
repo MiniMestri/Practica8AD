@@ -1,13 +1,27 @@
 import tkinter as tk
 import random
 import math
+import json
 
 circulo = []
 rectangulo=[]
 numobjetos = 5
+class Estructura:
+    def __init__(self):
+        pass
+    def serializar(self):
+        self.centrox = random.randint(0,512) 
+        self.centroy = random.randint(0,512)
+        self.color = "green"
+        objeto_serializado={
+            "centrox": self.centrox,
+            "centroy": self.centroy,
+            "color": self.color
+            }
+        return objeto_serializado
 
 class Objetos:
-    def __init__(self):
+    def __init__(self,forma):
         self.centrox = random.randint(0,512) 
         self.centroy = random.randint(0,512) 
         self.radio = 30
@@ -15,7 +29,9 @@ class Objetos:
         self.color = "green"
         self.color2="red"
         self.entidad = ""
-        self.caracteristicas=""
+        self.caracteristicas=[]
+        self.forma=forma
+        self.caracteristicas.append(Estructura())
 
     def visualizar(self):
         self.entidad = lienzo.create_oval(
@@ -48,22 +64,33 @@ class Objetos:
             self.direccion += 180
     def serializar(self):
         objeto_serializado={
+            "entidad":self.entidad,
+            "forma":self.forma,
             "centrox": self.centrox,
             "centroy": self.centroy,
             "radio": self.radio,
             "direccion": self.direccion,
             "color": self.color,
-            "caracteristicas":self.caracteristicas
+            "caracteristicas":[item.serializar() for item in self.caracteristicas]
             }
+        return objeto_serializado
+
+def guardarJSON():
+    objeto_serializado =[circulo.serializar() for circulo in circulo + rectangulo]
+    cadena=json.dumps(objeto_serializado)
+    with open("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.json",'w') as archivo:
+        archivo.write(cadena)
 
 raiz = tk.Tk()
-
+#Elementos
 lienzo = tk.Canvas(raiz, width=512, height=512)
 lienzo.pack()
 
+boton_guardar=tk.Button(raiz,text="GUARDAR",command=guardarJSON).pack()
+
 for i in range(0, numobjetos):
-    circulo.append(Objetos())
-    rectangulo.append(Objetos())
+    circulo.append(Objetos("circulo"))
+    rectangulo.append(Objetos("rectangulo"))
 
 for elemento in circulo:
     elemento.visualizar()
@@ -81,5 +108,7 @@ def bucleR():
 
 bucleC()
 bucleR()
+
+
 
 raiz.mainloop()
