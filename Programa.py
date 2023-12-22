@@ -111,7 +111,7 @@ def guardarSQL():
 
 def leerSQL():
     #Cargar satelites desde sql
-    try:
+
         conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
         cursor = conexion.cursor()
 
@@ -121,24 +121,27 @@ def leerSQL():
             fila = cursor.fetchone()
             if fila is None:
                 break
-            objeto= Objetos()
-            objeto.entidad=fila[1]
-            objeto.forma=fila[2]
-            objeto.centrox=fila[3]
-            objeto.centroy=fila[4]
-            objeto.radio=fila[5]
-            objeto.direccion=fila[6]
-            objeto.caracteristicas=fila[9]
-            if objeto.forma =="circulo":
-                objeto.color=fila[7]
-                circulo.append(Objetos())
-            elif objeto.forma =="rectangulo":
-                objeto.color=fila[8]
-                rectangulo.append(Objetos())
+            
+            forma = fila[2]
+            objeto = Objetos(forma)
+            objeto.entidad = fila[1]
+            objeto.centrox = fila[3]
+            objeto.centroy = fila[4]
+            objeto.radio = fila[5]
+            objeto.direccion = fila[6]
+            objeto.caracteristicas = fila[9]
+
+            if forma == "circulo":
+                objeto.color1 = fila[7]
+                circulo.append(objeto)
+                objeto.circulo()
+            elif forma == "rectangulo":
+                objeto.color2 = fila[8]
+                rectangulo.append(objeto)
+                objeto.rectangulo()
 
         conexion.close()
-    except:
-        print("ERROR")
+
         
 def limpiar_lienzo():
     for objeto in circulo + rectangulo:
