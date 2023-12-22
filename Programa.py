@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 import math
 import json
+import sqlite3
 
 circulo = []
 rectangulo=[]
@@ -81,12 +82,63 @@ def guardarJSON():
     with open("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.json",'w') as archivo:
         archivo.write(cadena)
 
+def guardarSQL():
+    conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica8AD\\bbdd.sqlite3")
+    cursor = conexion.cursor()
+    for objeto in circulo + rectangulo:
+        sql_query = '''
+            INSERT INTO objetos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        '''
+        print(sql_query)  # Imprime la sentencia SQL
+        cursor.execute(sql_query, (
+            str(objeto.entidad),
+            str(objeto.forma),
+            objeto.centrox,
+            objeto.centroy,
+            objeto.radio,
+            objeto.direccion,
+            str(objeto.color),
+            str(objeto.color2),
+            str(objeto.caracteristicas)
+        ))
+
+    conexion.commit()
+    conexion.close()
+
+def leerSQL():
+    #Cargar satelites desde sql
+    try:
+        conexion = sqlite3.connect("C:\\Users\\fonsi\\Desktop\\ESTUDIO\\IMF 2\\ACCESO A DATOS\\Practicas\\Practica7AD\\nasa.sqlite3")
+        cursor = conexion.cursor()
+
+        cursor.execute('''SELECT * FROM satelites''')
+
+        while True:
+            fila = cursor.fetchone()
+            if fila is None:
+                break
+            satelite= Objetos()
+            satelite.centrox=fila[1]
+            satelite.centroy=fila[2]
+            satelite.radioS=fila[3]
+            satelite.direccion=fila[4]
+            satelite.color3=fila[5]
+            satelite.entidad=fila[6]
+            satelite.velocidad=fila[7]
+            satelite.a=fila[8]
+            satelite.b=fila[9]
+            objetos.append(Objetos())
+
+        conexion.close()
+    except:
+        print("ERROR")
+
 raiz = tk.Tk()
 #Elementos
 lienzo = tk.Canvas(raiz, width=512, height=512)
 lienzo.pack()
 
-boton_guardar=tk.Button(raiz,text="GUARDAR",command=guardarJSON).pack()
+boton_guardar=tk.Button(raiz,text="GUARDAR",command=guardarSQL).pack()
 
 for i in range(0, numobjetos):
     circulo.append(Objetos("circulo"))
