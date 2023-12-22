@@ -153,6 +153,20 @@ def leerSQL():
                 rectangulo.append(objeto)
                 objeto.rectangulo()
 
+            cursor2= conexion.cursor()
+            peticion2='''SELECT * FROM caracteristicas WHERE objeto='''+(str(objeto.entidad))+'''
+            '''
+            cursor2.execute(peticion2)
+            while True:
+                fila1 = cursor2.fetchone()
+                if fila1 is None:
+                    break
+                estructura = Estructura()
+                estructura.centrox=fila[2]
+                estructura.centroy=fila[3]
+                estructura.color=fila[4]
+                objeto.caracteristicas.append(estructura)
+                
         conexion.close()
 
         
