@@ -220,11 +220,6 @@ boton_cargar=tk.Button(frame_botones,text="CARGAR",command=leerSQL).grid(row=0,c
 boton_anadirR=tk.Button(frame_botones,text="+1 RECTANGULO",command=anadirRectangulo).grid(row=0,column=3,padx=10,pady=10)
 boton_anadirC=tk.Button(frame_botones,text="+1 CIRCULO",command=anadirCirculo).grid(row=0,column=4,padx=10,pady=10)
 
-#Funcionamiento
-for elemento in circulo:
-    elemento.circulo()
-for elemento in rectangulo:
-    elemento.rectangulo()
 
 def bucleC():
     for objeto in circulo:
